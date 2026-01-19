@@ -7,6 +7,9 @@
 ## 1. What is Terraform?
 
 **Answer:**
+
+writing code to setup server and infrastructure insted of clicking button you write a script to setup  your cloud server
+
 Terraform is an open-source Infrastructure as Code (IaC) tool created by HashiCorp. It allows you to define and provision infrastructure resources using a declarative configuration language called HCL (HashiCorp Configuration Language).
 
 ---
