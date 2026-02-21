@@ -1,4 +1,4 @@
-```tf
+
 # =======================================
 # DynamoDB Table + IAM Role + Policy Setup
 # =======================================
@@ -6,6 +6,8 @@
 # -------------------------------
 # DynamoDB Table create karna
 # -------------------------------
+
+```1.tf
 resource "aws_dynamodb_table" "basic_dynamodb_table" {
   name         = "TournamentMatches"      # Table ka naam
   billing_mode = "PROVISIONED"            # Provisioned mode (read/write capacity set karna hota)
