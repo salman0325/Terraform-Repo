@@ -1,0 +1,82 @@
+# =======================================
+# DynamoDB Table + IAM Role + Policy Setup
+# =======================================
+
+# -------------------------------
+# DynamoDB Table create karna
+# -------------------------------
+resource "aws_dynamodb_table" "basic_dynamodb_table" {
+  name         = "TournamentMatches"      # Table ka naam
+  billing_mode = "PROVISIONED"            # Provisioned mode (read/write capacity set karna hota)
+  read_capacity  = 5                       # Read capacity units
+  write_capacity = 5                       # Write capacity units
+  hash_key     = "matchId"                 # Primary key (partition key)
+
+  # Table ke attributes define karte hain
+  attribute {
+    name = "matchId"                       # Attribute ka naam (primary key)
+    type = "S"                              # Type: S = String, N = Number, B = Binary
+  }
+
+  tags = {
+    Environment = "Dev"                     # Optional tag
+  }
+}
+
+# -------------------------------
+# IAM Role Create karna
+# -------------------------------
+resource "aws_iam_role" "test_role" {
+  name = "test_role"                       # Role ka naam
+
+  # EC2 ko role assume karne ki permission
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"                   # Allow kar rahe hain
+        Principal = {
+          Service = "ec2.amazonaws.com"    # Sirf EC2 service assume kar sakti hai
+        }
+        Action = "sts:AssumeRole"          # Required action
+      }
+    ]
+  })
+
+  tags = {
+    Environment = "Dev"                     # Optional tag
+  }
+}
+
+# -------------------------------
+# IAM Policy Create karna (DynamoDB access)
+# -------------------------------
+resource "aws_iam_policy" "policy" {
+  name        = "test_policy"             # Policy ka naam
+  description = "Allow read access to DynamoDB Table"  # Optional description
+  path        = "/"                        # Default path
+
+  # Policy JSON define karte hain
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"                 # Permission allow kar rahe hain
+        Action   = [
+          "dynamodb:GetItem",              # Single item read kar sakta hai
+          "dynamodb:Scan",                 # Table scan kar sakta hai
+          "dynamodb:Query"                 # Query kar sakta hai
+        ]
+        Resource = aws_dynamodb_table.basic_dynamodb_table.arn   # Sirf ye DynamoDB table access
+      }
+    ]
+  })
+}
+
+# -------------------------------
+# IAM Role aur Policy ko attach karna
+# -------------------------------
+resource "aws_iam_role_policy_attachment" "test_attach" {
+  role       = aws_iam_role.test_role.name   # Role jisko policy attach karna hai
+  policy_arn = aws_iam_policy.policy.arn     # Policy ARN
+}
